@@ -64,9 +64,9 @@ for m in motion:
     ts = timestamp_to_datetime(m.get('timestamp'))
     dur = ts - previous
     if m.get('before').get('name') in duration:
-        duration[m.get('before').get('name')+'_2'] = dur
+        duration[m.get('before').get('name')+'_2'] = dur.seconds
     else:
-        duration[m.get('before').get('name')] = dur
+        duration[m.get('before').get('name')] = dur.seconds
     previous = ts
 
 # output duration to json
