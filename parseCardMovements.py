@@ -8,6 +8,11 @@ def timestamp_to_datetime(ts):
     return datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%fZ')
 
 
+#   __________________________
+#
+#   CODE EXECUTION STARTS HERE:
+#   __________________________
+
 if len(sys.argv) != 2:
     exit()
 
@@ -32,8 +37,8 @@ for a in card.get('actions'):
             motion.append(value)
 motion.reverse()
 # output motion to json
-# with open(card.get('name')+'_motion.json', 'w') as fp:
-#    json.dump(motion, fp)
+with open(card.get('name')+'_motion.json', 'w') as fp:
+    json.dump(motion, fp)
 
 # calculate process time
 # TODO: need to fix this calculation to distinguish redelivered utilities
