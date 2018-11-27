@@ -37,7 +37,7 @@ for a in card.get('actions'):
             motion.append(value)
 motion.reverse()
 # output motion to json
-with open(card.get('name')+'_motion.json', 'w') as fp:
+with open('.\\_motion\\'+card.get('name')+'_motion.json', 'w') as fp:
     json.dump(motion, fp)
 
 # calculate process time
@@ -70,5 +70,5 @@ for m in motion:
     previous = ts
 
 # output duration to json
-with open(card.get('name')+'_duration.json', 'w') as fp:
+with open('.\\_duration\\'+card.get('name')+'_duration.json', 'w') as fp:
     json.dump(duration, fp, default=str)
