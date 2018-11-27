@@ -41,13 +41,13 @@ with open('.\\_motion\\'+card.get('name')+'_motion.json', 'w') as fp:
     json.dump(motion, fp)
 
 # calculate process time
-# TODO: need to fix this calculation to distinguish redelivered utilities
-#   from cards were used in previous delivery season
+# TODO: need to fix this calculation to distinguish a rerun processes
+#   from cards used in previous process term
 start_time = timestamp_to_datetime(motion[0].get('timestamp'))
 final_time = timestamp_to_datetime(
     motion[(motion.__len__() - 1)].get('timestamp'))
 process_time = final_time - start_time
-print('time for delivery:', process_time)
+print('time for process:', process_time)
 
 
 # check for duplicates (shows if steps were repeated)
@@ -68,6 +68,7 @@ for m in motion:
     else:
         duration[m.get('before').get('name')] = dur.seconds
     previous = ts
+duration['TotalProcessTime'] = process_time.seconds
 
 # output duration to json
 with open('.\\_duration\\'+card.get('name')+'_duration.json', 'w') as fp:
