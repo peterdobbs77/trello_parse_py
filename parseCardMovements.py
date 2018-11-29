@@ -28,7 +28,7 @@ for a in card.get('actions'):
         if 'listBefore' in a.get('data'):
             # build new json string entry
             value = {
-                'card': a.get('data').get('card'),
+                'name': card.get('name'),
                 'before': a.get('data').get('listBefore'),
                 'after': a.get('data').get('listAfter'),
                 'timestamp': a.get('date')
