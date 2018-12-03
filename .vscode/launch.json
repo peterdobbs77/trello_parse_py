@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "ldc1_trello.json"
+                "card_example.json"
             ]
         },
         {
@@ -62,6 +62,6 @@
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal"
-        }
+        },
     ]
 }

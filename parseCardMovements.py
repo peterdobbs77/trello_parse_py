@@ -3,11 +3,6 @@ import json
 from datetime import datetime
 from datetime import timedelta
 
-
-def timestamp_to_datetime(ts):
-    return datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%fZ')
-
-
 #   __________________________
 #
 #   CODE EXECUTION STARTS HERE:
@@ -28,24 +23,19 @@ for a in card.get('actions'):
         if 'listBefore' in a.get('data'):
             # build new json string entry
             value = {
-                'name': card.get('name'),
-                'before': a.get('data').get('listBefore'),
-                'after': a.get('data').get('listAfter'),
-                'timestamp': a.get('date')
+                'before': a.get('data').get('listBefore').get('name'),
+                'after': a.get('data').get('listAfter').get('name'),
+                'timestamp': datetime.strptime(a.get('date'), '%Y-%m-%dT%H:%M:%S.%fZ')
             }
             # and add it to the list
             motion.append(value)
 motion.reverse()
-# output motion to json
-with open('.\\_motion\\'+card.get('name')+'_motion.json', 'w') as fp:
-    json.dump(motion, fp)
 
 # calculate process time
 # TODO: need to fix this calculation to distinguish a rerun processes
 #   from cards used in previous process term
-start_time = timestamp_to_datetime(motion[0].get('timestamp'))
-final_time = timestamp_to_datetime(
-    motion[(motion.__len__() - 1)].get('timestamp'))
+start_time = motion[0].get('timestamp')
+final_time = motion[(motion.__len__() - 1)].get('timestamp')
 process_time = final_time - start_time
 print('time for process:', process_time)
 
@@ -53,23 +43,20 @@ print('time for process:', process_time)
 # check for duplicates (shows if steps were repeated)
 seen = set()
 for m in motion:
-    if m.get('after').get('name') in seen:
-        print('duplicates of:', m.get('after').get('name'))
-    seen.add(m.get('after').get('name'))
+    if m.get('after') in seen:
+        print('duplicates of:', m.get('after'))
+    seen.add(m.get('after'))
 
 # calculate time spent in each list (including if the step was repeated)
 previous = start_time
-duration = {}
 for m in motion:
-    ts = timestamp_to_datetime(m.get('timestamp'))
+    ts = m.get('timestamp')
     dur = ts - previous
-    if m.get('before').get('name') in duration:
-        duration[m.get('before').get('name')+'_2'] = dur.seconds
-    else:
-        duration[m.get('before').get('name')] = dur.seconds
+    m['durationBefore'] = dur.seconds
     previous = ts
-duration['TotalProcessTime'] = process_time.seconds
 
+head = {}
+head[card.get('name')] = motion
 # output duration to json
-with open('.\\_duration\\'+card.get('name')+'_duration.json', 'w') as fp:
-    json.dump(duration, fp, default=str)
+with open(card.get('name')+'_head.json', 'w') as fp:
+    json.dump(head, fp, default=str)
