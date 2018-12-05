@@ -1,7 +1,11 @@
+# Python 3.6.6
+
 import sys
 import json
 from datetime import datetime
 from datetime import timedelta
+import pandas as pd
+import numpy as np
 
 
 def fixTrelloTimestamp(ts):
@@ -33,10 +37,21 @@ def filterTrelloBoard(board):
     return filtered_board
 
 
-#   __________________________
-#
-#   CODE EXECUTION STARTS HERE:
-#   __________________________
+def getCardMotionFromBoardActions(board):
+    motion = []
+    for a in board.get('actions'):
+        if a.get('type') == "updateCard":
+            if 'listBefore' in a.get('data'):
+                # build new json string entry
+                value = {
+                    'card': a.get('data').get('card'),
+                    'before': a.get('data').get('listBefore'),
+                    'after': a.get('data').get('listAfter'),
+                    'timestamp': a.get('date')
+                }
+                motion.append(value)
+    motion.reverse()
+    return motion
 
 
 if len(sys.argv) != 2:
@@ -49,27 +64,18 @@ with open(fileName, encoding='cp850') as f:
 
 board = filterTrelloBoard(board)
 
-with open('cleaned_' + board.get('name').split(' ')[0] + '_board.json', 'w', encoding='cp850') as f:
-    json.dump(board, f, default=str)
+df = pd.DataFrame(getCardMotionFromBoardActions(board))
+df['timestamp'] = pd.to_datetime(df.timestamp)
+df = df.sort_values('timestamp', ascending=False)
+df = df.sort_values('card', ascending=True)
+df.to_csv(board.get('name')+'.csv')
 
-# parse *actions* for card movement
-motion = []
-for a in board.get('actions'):
-    if a.get('type') == "updateCard":
-        if 'listBefore' in a.get('data'):
-            # build new json string entry
-            value = {
-                'card': a.get('data').get('card'),
-                'before': a.get('data').get('listBefore'),
-                'after': a.get('data').get('listAfter'),
-                'timestamp': a.get('date')
-            }
-            # and add it to the list
-            motion.append(value)
-motion.reverse()
+# previous_card = ""
+# for rec in df:
+#     previous_card =
+#     rec['duration']
 
-head = {}
-head[board.get('name')] = motion
-# output duration to json
-with open(board.get('name').split(' ')[0]+'_head.json', 'w') as fp:
-    json.dump(head, fp, default=str)
+#
+
+pd.pivot_table(df, values='after', index='after',
+               aggfunc=[pd.Series.nunique, np.cumsum(pd.Series.nunique)])
