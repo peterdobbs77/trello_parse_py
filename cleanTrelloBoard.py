@@ -54,6 +54,7 @@ def getCardMotionFromBoardActions(board):
     return motion
 
 
+# SETUP
 if len(sys.argv) != 2:
     exit()
 
@@ -62,20 +63,25 @@ fileName = sys.argv[1]
 with open(fileName, encoding='cp850') as f:
     board = json.load(f)
 
+# GET ONLY STUFF THAT MATTERS
 board = filterTrelloBoard(board)
+# GET ONLY MOTION INFO / DEIDENTIFY ACTIONS
+motion = getCardMotionFromBoardActions(board)
 
-df = pd.DataFrame(getCardMotionFromBoardActions(board))
-df['timestamp'] = pd.to_datetime(df.timestamp)
-df = df.sort_values('timestamp', ascending=False)
-df = df.sort_values('card', ascending=True)
+# CALCULATE LENGTH OF WHOLE BOARD PROCESS
+start_time = datetime.strptime(motion[0].get('timestamp'), '%x %X')
+final_time = datetime.strptime(
+    motion[(motion.__len__() - 1)].get('timestamp'), '%x %X')
+process_time = final_time - start_time
+print('time for process:', process_time)
+
+# ANALYSIS
+df = pd.DataFrame(motion)
+# df['timestamp'] = pd.to_datetime(df.timestamp)
+# df = df.sort_values('timestamp', ascending=False)
+# df = df.sort_values('card', ascending=True)
+
 df.to_csv(board.get('name')+'.csv')
 
-# previous_card = ""
-# for rec in df:
-#     previous_card =
-#     rec['duration']
-
-#
-
-pd.pivot_table(df, values='after', index='after',
-               aggfunc=[pd.Series.nunique, np.cumsum(pd.Series.nunique)])
+# pd.pivot_table(df, values='after', index='after',
+#    aggfunc=[pd.Series.nunique, np.cumsum(pd.Series.nunique)])
